@@ -145,6 +145,37 @@
           }
         }
       }
+    },
+    "multi-captcha": {
+      "projectType": "library",
+      "root": "projects/multi-captcha",
+      "sourceRoot": "projects/multi-captcha/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/multi-captcha/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/multi-captcha/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/multi-captcha/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/multi-captcha/src/test.ts",
+            "tsConfig": "projects/multi-captcha/tsconfig.spec.json",
+            "karmaConfig": "projects/multi-captcha/karma.conf.js"
+          }
+        }
+      }
     }
   },
   "cli": {

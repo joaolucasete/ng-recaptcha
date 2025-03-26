@@ -1,10 +1,11 @@
-<re-captcha
-  #captchaRef="reCaptcha"
+<multi-captcha
+  #captchaRef="multiCaptcha"
+  [siteKey]="siteKey"
   (resolved)="resolved($event)"
   (errored)="onError($event)"
   errorMode="handled"
-  size="invisible"
-></re-captcha>
+>
+</multi-captcha>
 <button (click)="captchaRef.execute()">Submit</button>
 <button (click)="captchaRef.reset()">Reset</button>
 <pre>

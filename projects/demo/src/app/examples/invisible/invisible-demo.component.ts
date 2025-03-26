@@ -1,6 +1,4 @@
-import { Component } from "@angular/core";
-
-import { RecaptchaErrorParameters } from "ng-recaptcha";
+import { Component, Inject, Optional } from "@angular/core";
 
 @Component({
   selector: "recaptcha-demo",
@@ -8,6 +6,8 @@ import { RecaptchaErrorParameters } from "ng-recaptcha";
 })
 export class InvisibleDemoComponent {
   public captchaResponse = "";
+  public siteKey: string = "6LcbLfEqAAAAAABvI9gWVnBHAIPIT-kP1RVmCweF";
+
   public resolved(captchaResponse: string): void {
     const newResponse = captchaResponse
       ? `${captchaResponse.substring(0, 7)}...${captchaResponse.substring(captchaResponse.length - 7)}`
@@ -15,7 +15,7 @@ export class InvisibleDemoComponent {
     this.captchaResponse += `${JSON.stringify(newResponse)}\n`;
   }
 
-  public onError(errorDetails: RecaptchaErrorParameters): void {
+  public onError(errorDetails: any): void {
     this.captchaResponse += `ERROR; error details (if any) have been logged to console\n`;
     console.log(`reCAPTCHA error encountered; details:`, errorDetails);
   }

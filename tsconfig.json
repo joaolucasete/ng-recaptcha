@@ -17,7 +17,8 @@
     "module": "es2020",
     "lib": ["es2020", "dom"],
     "paths": {
-      "ng-recaptcha": ["dist/ng-recaptcha/ng-recaptcha", "dist/ng-recaptcha"]
+      "ng-recaptcha": ["dist/ng-recaptcha/ng-recaptcha", "dist/ng-recaptcha"],
+      "multi-captcha": ["dist/multi-captcha/multi-captcha", "dist/multi-captcha"]
     },
     "useDefineForClassFields": false
   },
