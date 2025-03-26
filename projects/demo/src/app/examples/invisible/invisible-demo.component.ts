@@ -6,7 +6,7 @@ import { Component, Inject, Optional } from "@angular/core";
 })
 export class InvisibleDemoComponent {
   public captchaResponse = "";
-  public siteKey: string = "6LcbLfEqAAAAAABvI9gWVnBHAIPIT-kP1RVmCweF";
+  public siteKey: string = "xxxxxxxxxxxxxxxxxxxxxxxx";
 
   public resolved(captchaResponse: string): void {
     const newResponse = captchaResponse
