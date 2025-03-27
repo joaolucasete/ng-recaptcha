@@ -7,7 +7,7 @@ import { CaptchaProvider } from "../tokens";
 })
 export class TurnstileProvider implements ICaptchaProvider {
   readonly name = CaptchaProvider.Turnstile;
-  url = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+  url = "https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha";
 
   callbackHandler(onLoaded: Function) {
     return () => onLoaded(window.turnstile);

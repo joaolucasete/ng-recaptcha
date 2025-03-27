@@ -28,7 +28,7 @@ const routes: Routes = [
           return { url };
         },
       },
-      CaptchaProvider.Recaptcha,
+      CaptchaProvider.Hcaptcha,
     ),
     CommonModule,
   ],

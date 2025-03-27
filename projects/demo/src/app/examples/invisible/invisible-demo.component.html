@@ -1,14 +1,9 @@
-<multi-captcha
-  #captchaRef="multiCaptcha"
-  [siteKey]="siteKey"
-  (resolved)="resolved($event)"
-  (errored)="onError($event)"
-  errorMode="handled"
->
-</multi-captcha>
-<button (click)="captchaRef.execute()">Submit</button>
-<button (click)="captchaRef.reset()">Reset</button>
-<pre>
-reCAPTCHA response log:
+<multi-captcha #captcha [siteKey]="siteKey" (errored)="onError($event)" errorMode="handled"> </multi-captcha>
+<button (click)="executeAndVerify()" [disabled]="isVerifying">
+  {{ isVerifying ? "Verificando..." : "Verificar com " + captcha.providerName() }}
+</button>
+<button (click)="captcha.reset()">Reset</button>
+<pre
+  >{{ captcha.providerName() }} response log:
 {{ captchaResponse || "(empty)" }}</pre
 >

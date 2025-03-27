@@ -8,12 +8,10 @@ import {
   NgZone,
   OnDestroy,
   Output,
+  signal,
 } from "@angular/core";
-import { Subscription } from "rxjs";
 import { CaptchaLoaderService } from "./catpcha-loader.service";
 import { CaptchaRenderOptions, ICaptchaProvider } from "./interfaces";
-
-let nextId = 0;
 
 @Component({
   exportAs: "multiCaptcha",
@@ -21,9 +19,8 @@ let nextId = 0;
   template: ``,
 })
 export class CaptchaComponent implements AfterViewInit, OnDestroy {
-  @Input()
   @HostBinding("attr.id")
-  public id = `captcha-${nextId++}`;
+  id = `captcha-${Math.floor(100000 + Math.random() * 900000)}`;
 
   @Input() public siteKey: string;
   @Input() public errorMode: "handled" | "default" = "default";
@@ -31,10 +28,15 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
   @Output() public resolved = new EventEmitter<string | null>();
   @Output() public errored = new EventEmitter<any>();
 
+  providerName = signal<string | null>(null);
+
+  private pendingPromiseResolvers: {
+    resolve: (value: string) => void;
+    reject: (reason: any) => void;
+  }[] = [];
+
   /** @internal */
-  private subscription: Subscription;
-  /** @internal */
-  private widget: number;
+  private widgetId: number;
   /** @internal */
   private executeRequested: boolean;
 
@@ -46,8 +48,9 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
   ) {}
 
   public ngAfterViewInit(): void {
-    this.loader.getReady(this.provider).subscribe((_) => {
+    this.loader.getReady(this.provider).subscribe(() => {
       this.renderRecaptcha();
+      this.providerName.set(this.provider.name);
     });
   }
 
@@ -55,27 +58,33 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
     // reset the captcha to ensure it does not leave anything behind
     // after the component is no longer needed
     this.grecaptchaReset();
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
   }
 
   /**
    * Executes the invisible recaptcha.
    * Does nothing if component's size is not set to "invisible".
    */
-  public execute(): void {
-    if (this.widget != null) {
-      this.provider.execute(this.widget);
-    } else {
-      // delay execution of recaptcha until it actually renders
-      this.executeRequested = true;
-    }
+  public execute(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      if (this.widgetId) {
+        if (this.pendingPromiseResolvers.length) {
+          const pendingError = new Error("Nova execução iniciada antes da conclusão da anterior");
+          this.pendingPromiseResolvers.forEach((resolver) => resolver.reject(pendingError));
+          this.pendingPromiseResolvers = [];
+        }
+
+        this.pendingPromiseResolvers.push({ resolve, reject });
+        this.provider.execute(this.widgetId);
+      } else {
+        this.pendingPromiseResolvers.push({ resolve, reject });
+        this.executeRequested = true;
+      }
+    });
   }
 
   public reset(): void {
-    if (this.widget != null) {
-      if (this.provider.getResponse(this.widget)) {
+    if (this.widgetId) {
+      if (this.provider.getResponse(this.widgetId)) {
         // Only emit an event in case if something would actually change.
         // That way we do not trigger "touching" of the control if someone does a "reset"
         // on a non-resolved captcha.
@@ -86,18 +95,6 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
     }
   }
 
-  /**
-   * ⚠️ Warning! Use this property at your own risk!
-   *
-   * While this member is `public`, it is not a part of the component's public API.
-   * The semantic versioning guarantees _will not be honored_! Thus, you might find that this property behavior changes in incompatible ways in minor or even patch releases.
-   * You are **strongly advised** against using this property.
-   * Instead, use more idiomatic ways to get reCAPTCHA value, such as `resolved` EventEmitter, or form-bound methods (ngModel, formControl, and the likes).å
-   */
-  public get __unsafe_widgetValue(): string | null {
-    return this.widget != null ? this.provider.getResponse(this.widget) : null;
-  }
-
   /** @internal */
   private onError(args: any) {
     this.errored.emit(args);
@@ -105,8 +102,8 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
 
   /** @internal */
   private grecaptchaReset() {
-    if (this.widget != null) {
-      this.zone.runOutsideAngular(() => this.provider.reset(this.widget));
+    if (this.widgetId != null) {
+      this.zone.runOutsideAngular(() => this.tryCatch(() => this.provider.reset(this.widgetId)));
     }
   }
 
@@ -115,7 +112,7 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
     // This `any` can be removed after @types/grecaptcha get updated
     const renderOptions: CaptchaRenderOptions = {
       sitekey: this.siteKey,
-      callback: (response: string) => this.zone.run(() => this.resolved.emit(response)),
+      callback: (response: string) => this.zone.run(() => this.captchaResponseCallback(response)),
       "expired-callback": () => this.zone.run(() => this.resolved.emit(null)),
     };
 
@@ -125,11 +122,26 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
       };
     }
 
-    this.widget = this.provider.render(this.elementRef.nativeElement, renderOptions);
+    this.widgetId = this.tryCatch(() => this.provider.render(this.elementRef.nativeElement, renderOptions));
 
     if (this.executeRequested === true) {
       this.executeRequested = false;
       this.execute();
+    }
+  }
+
+  private captchaResponseCallback(response: string) {
+    this.resolved.emit(response);
+
+    this.pendingPromiseResolvers.forEach((resolver) => resolver.resolve(response));
+    this.pendingPromiseResolvers = [];
+  }
+
+  private tryCatch(fn: Function) {
+    try {
+      return fn();
+    } catch (e) {
+      this.onError(e);
     }
   }
 }

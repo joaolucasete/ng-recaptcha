@@ -4,18 +4,13 @@ import { Routes, RouterModule } from "@angular/router";
 import { examples } from "../../../bin/examples";
 
 const routes: Routes = [
-  ...examples.map((e) => ({
-    path: e.name,
+  {
+    path: "invisible",
     loadChildren: () =>
-      import(`../examples/${e.name}/${e.name}-demo.module`).then(
+      import(`../examples/invisible/invisible-demo.module`).then(
         // eslint-disable-next-line
         (m) => m.DemoModule,
       ),
-  })),
-  {
-    path: "",
-    redirectTo: `/${examples.find((e) => e.index)!.name}`,
-    pathMatch: "full",
   },
 ];
 

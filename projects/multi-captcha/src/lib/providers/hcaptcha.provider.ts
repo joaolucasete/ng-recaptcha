@@ -14,13 +14,15 @@ export class HcaptchaProvider implements ICaptchaProvider {
   }
 
   render(element: HTMLElement, options: CaptchaRenderOptions): number {
-    return window.hcaptcha.render(element, {
+    const renderOptions = {
       sitekey: options.sitekey,
       callback: options.callback,
       size: "invisible",
       "expired-callback": options["expired-callback"],
       "error-callback": options["error-callback"],
-    });
+    };
+
+    return window.hcaptcha.render(element, renderOptions);
   }
 
   execute(widgetId?: number): void {
