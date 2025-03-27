@@ -9,9 +9,6 @@ export class InvisibleDemoComponent {
   @ViewChild("captcha") multiCaptcha: CaptchaComponent;
 
   public captchaResponse = "";
-  // public siteKey: string = "6LdfItkZAAAAAIszILpBAKRqXGKo80WxGNyu2GSs"; // recaptcha
-  public siteKey = "8a1c02a8-8938-4392-b62e-424896d8af6e"; // hcaptcha
-  // public siteKey = "0x4AAAAAAA_pTcVw10OrUibR"; // turnstile
   isVerifying = false;
 
   async execute() {
