@@ -1,13 +1,18 @@
 import { Injectable } from "@angular/core";
-import { CaptchaRenderOptions, ICaptchaProvider } from "../interfaces";
-import { CaptchaProvider } from "../tokens";
+import { CaptchaProvider, CaptchaProviderType, CaptchaRenderOptions } from "../tokens";
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
 
 @Injectable({
   providedIn: "root",
 })
-export class RecaptchaV2Provider implements ICaptchaProvider {
-  readonly name = CaptchaProvider.Recaptcha;
-  url = "https://www.google.com/recaptcha/api.js";
+export class RecaptchaV2Provider implements CaptchaProvider {
+  readonly name = CaptchaProviderType.Recaptcha;
+  url = "https://www.google.com/recaptcha/api.js?trustedtypes=true";
 
   callbackHandler(onLoaded: Function) {
     return () => onLoaded(window.grecaptcha);

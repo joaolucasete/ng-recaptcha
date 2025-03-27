@@ -1,19 +1,24 @@
 import { Injectable } from "@angular/core";
-import { CaptchaRenderOptions, ICaptchaProvider } from "../interfaces";
-import { CaptchaProvider } from "../tokens";
+import { CaptchaProvider, CaptchaProviderType, CaptchaRenderOptions } from "../tokens";
+
+declare global {
+  interface Window {
+    turnstile: any;
+  }
+}
 
 @Injectable({
   providedIn: "root",
 })
-export class TurnstileProvider implements ICaptchaProvider {
-  readonly name = CaptchaProvider.Turnstile;
+export class TurnstileProvider implements CaptchaProvider {
+  readonly name = CaptchaProviderType.Turnstile;
   url = "https://challenges.cloudflare.com/turnstile/v0/api.js?compat=recaptcha";
 
   callbackHandler(onLoaded: Function) {
     return () => onLoaded(window.turnstile);
   }
 
-  render(element: HTMLElement, options: CaptchaRenderOptions): number {
+  render(element: HTMLElement, options: CaptchaRenderOptions): number | string {
     return window.turnstile.render(element, {
       sitekey: options.sitekey,
       callback: options.callback,
@@ -23,15 +28,15 @@ export class TurnstileProvider implements ICaptchaProvider {
     });
   }
 
-  execute(widgetId?: number): void {
+  execute(widgetId?: string): void {
     window.turnstile.execute(widgetId);
   }
 
-  reset(widgetId?: number): void {
+  reset(widgetId?: string): void {
     window.turnstile.reset(widgetId);
   }
 
-  getResponse(widgetId?: number): string | null {
+  getResponse(widgetId?: string): string | null {
     return window.turnstile.getResponse(widgetId);
   }
 }

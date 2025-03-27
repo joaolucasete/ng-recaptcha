@@ -5,7 +5,7 @@ import { Routes, RouterModule } from "@angular/router";
 import { parseLangFromHref } from "../../parse-lang-from-href";
 import { InvisibleDemoComponent } from "./invisible-demo.component";
 import { settings } from "./invisible-demo.data";
-import { CaptchaProvider, MultiCaptchaModule } from "multi-captcha";
+import { CaptchaProviderType, MultiCaptchaModule } from "multi-captcha";
 
 const routes: Routes = [
   {
@@ -20,15 +20,15 @@ const routes: Routes = [
   imports: [
     RouterModule.forChild(routes),
     MultiCaptchaModule.forRoot(
+      {},
       {
-        onBeforeLoad(url) {
-          const langOverride = parseLangFromHref();
-          if (langOverride) url.searchParams.set("hl", langOverride);
-
-          return { url };
-        },
+        // provider: CaptchaProviderType.Hcaptcha,
+        // siteKey: "8a1c02a8-8938-4392-b62e-424896d8af6e", // hcaptcha
+        provider: CaptchaProviderType.Recaptcha,
+        siteKey: "6LdfItkZAAAAAIszILpBAKRqXGKo80WxGNyu2GSs", // recaptcha
+        // provider: CaptchaProviderType.Turnstile,
+        // siteKey: "0x4AAAAAAA_pTcVw10OrUibR", // turnstile
       },
-      CaptchaProvider.Recaptcha,
     ),
     CommonModule,
   ],

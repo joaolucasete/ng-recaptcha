@@ -1,4 +1,4 @@
-<multi-captcha #captcha [siteKey]="siteKey" (errored)="onError($event)" errorMode="handled"> </multi-captcha>
+<multi-captcha #captcha (errored)="onError($event)" errorMode="handled"> </multi-captcha>
 <button (click)="executeAndVerify()" [disabled]="isVerifying">
   {{ isVerifying ? "Verificando..." : "Verificar com " + captcha.providerName() }}
 </button>

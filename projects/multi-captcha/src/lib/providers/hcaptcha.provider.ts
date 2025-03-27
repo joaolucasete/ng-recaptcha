@@ -1,12 +1,17 @@
 import { Injectable } from "@angular/core";
-import { CaptchaRenderOptions, ICaptchaProvider } from "../interfaces";
-import { CaptchaProvider } from "../tokens";
+import { CaptchaProvider, CaptchaProviderType, CaptchaRenderOptions } from "../tokens";
+
+declare global {
+  interface Window {
+    hcaptcha: any;
+  }
+}
 
 @Injectable({
   providedIn: "root",
 })
-export class HcaptchaProvider implements ICaptchaProvider {
-  readonly name = CaptchaProvider.Hcaptcha;
+export class HcaptchaProvider implements CaptchaProvider {
+  readonly name = CaptchaProviderType.Hcaptcha;
   url = "https://js.hcaptcha.com/1/api.js";
 
   callbackHandler(onLoaded: Function) {

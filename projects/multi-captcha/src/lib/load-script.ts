@@ -1,11 +1,8 @@
-import { ICaptchaProvider } from "./interfaces";
+import { CaptchaProvider } from "./tokens";
 
 declare global {
   interface Window {
     captchaloaded?: () => void;
-    grecaptcha?: any;
-    hcaptcha?: any;
-    turnstile?: any;
   }
 }
 
@@ -14,7 +11,7 @@ function loadScript({
   onBeforeLoad,
   onLoaded,
 }: {
-  provider: ICaptchaProvider;
+  provider: CaptchaProvider;
   onBeforeLoad(url: URL): { url: URL; nonce?: string };
   onLoaded(captchaObj: any): void;
 }) {

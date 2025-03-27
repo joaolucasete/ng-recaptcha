@@ -4,8 +4,7 @@ import { BehaviorSubject, Observable, of } from "rxjs";
 import { filter } from "rxjs/operators";
 
 import { loader } from "./load-script";
-import { CAPTCHA_LOADER_OPTIONS, CaptchaLoaderOptions } from "./tokens";
-import { ICaptchaProvider } from "./interfaces";
+import { CAPTCHA_LOADER_OPTIONS, CaptchaLoaderOptions, CaptchaProvider } from "./tokens";
 
 function toNonNullObservable<T>(subject: BehaviorSubject<T | null>): Observable<T> {
   return subject.asObservable().pipe(filter((value): value is T => value !== null));
@@ -17,13 +16,13 @@ export class CaptchaLoaderService {
    * @internal
    * @nocollapse
    */
-  private static readyMap = new Map<string, BehaviorSubject<ICaptchaProvider | null>>();
+  private static readyMap = new Map<string, BehaviorSubject<CaptchaProvider | null>>();
 
   /**
    * Returns an Observable that resolves when the captcha provider is ready to use
    * @param provider The captcha provider instance
    */
-  public getReady(provider: ICaptchaProvider): Observable<ICaptchaProvider> {
+  public getReady(provider: CaptchaProvider): Observable<CaptchaProvider> {
     const subject = this.initProvider(provider);
     return subject ? toNonNullObservable(subject) : of(provider);
   }
@@ -34,7 +33,7 @@ export class CaptchaLoaderService {
   ) {}
 
   /** @internal */
-  private initProvider(provider: ICaptchaProvider): BehaviorSubject<ICaptchaProvider | null> | undefined {
+  private initProvider(provider: CaptchaProvider): BehaviorSubject<CaptchaProvider | null> | undefined {
     if (!isPlatformBrowser(this.platformId)) {
       return undefined;
     }
@@ -44,7 +43,7 @@ export class CaptchaLoaderService {
       return CaptchaLoaderService.readyMap.get(providerName)!;
     }
 
-    const subject = new BehaviorSubject<ICaptchaProvider | null>(null);
+    const subject = new BehaviorSubject<CaptchaProvider | null>(null);
     CaptchaLoaderService.readyMap.set(providerName, subject);
 
     loader.loadScript({

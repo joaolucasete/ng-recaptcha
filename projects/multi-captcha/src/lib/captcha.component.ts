@@ -4,6 +4,7 @@ import {
   ElementRef,
   EventEmitter,
   HostBinding,
+  Inject,
   Input,
   NgZone,
   OnDestroy,
@@ -11,7 +12,7 @@ import {
   signal,
 } from "@angular/core";
 import { CaptchaLoaderService } from "./catpcha-loader.service";
-import { CaptchaRenderOptions, ICaptchaProvider } from "./interfaces";
+import { CAPTCHA_SETTINGS, CaptchaProvider, CaptchaRenderOptions, CaptchaSettings } from "./tokens";
 
 @Component({
   exportAs: "multiCaptcha",
@@ -22,13 +23,12 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
   @HostBinding("attr.id")
   id = `captcha-${Math.floor(100000 + Math.random() * 900000)}`;
 
-  @Input() public siteKey: string;
   @Input() public errorMode: "handled" | "default" = "default";
 
   @Output() public resolved = new EventEmitter<string | null>();
   @Output() public errored = new EventEmitter<any>();
 
-  providerName = signal<string | null>(null);
+  public providerName = signal<string | null>(null);
 
   private pendingPromiseResolvers: {
     resolve: (value: string) => void;
@@ -44,7 +44,8 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
     private elementRef: ElementRef<HTMLElement>,
     private loader: CaptchaLoaderService,
     private zone: NgZone,
-    private provider: ICaptchaProvider,
+    private provider: CaptchaProvider,
+    @Inject(CAPTCHA_SETTINGS) private settings: CaptchaSettings,
   ) {}
 
   public ngAfterViewInit(): void {
@@ -111,7 +112,7 @@ export class CaptchaComponent implements AfterViewInit, OnDestroy {
   private renderRecaptcha() {
     // This `any` can be removed after @types/grecaptcha get updated
     const renderOptions: CaptchaRenderOptions = {
-      sitekey: this.siteKey,
+      sitekey: this.settings.siteKey,
       callback: (response: string) => this.zone.run(() => this.captchaResponseCallback(response)),
       "expired-callback": () => this.zone.run(() => this.resolved.emit(null)),
     };

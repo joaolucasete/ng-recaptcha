@@ -1,7 +1,23 @@
 import { InjectionToken } from "@angular/core";
-import { ICaptchaProvider } from "./interfaces";
 
-export enum CaptchaProvider {
+export abstract class CaptchaProvider {
+  readonly name: string;
+  url: string;
+  abstract callbackHandler(onLoaded: Function): () => void;
+  abstract render(element: HTMLElement, options: CaptchaRenderOptions): number | string;
+  abstract execute(widgetId?: string | number): void;
+  abstract reset(widgetId?: string | number): void;
+  abstract getResponse(widgetId?: string | number): string | null;
+}
+
+export interface CaptchaRenderOptions {
+  sitekey: string;
+  callback(response: string): void;
+  "expired-callback"?(): void;
+  "error-callback"?(): void;
+}
+
+export enum CaptchaProviderType {
   Recaptcha = "Recaptcha",
   Hcaptcha = "Hcaptcha",
   Turnstile = "Turnstile",
@@ -9,9 +25,13 @@ export enum CaptchaProvider {
 
 export interface CaptchaLoaderOptions {
   onBeforeLoad?(url: URL): { url: URL; nonce?: string };
-  onLoaded?(captchaObj: unknown): unknown;
+  onLoaded?(captchaObj: CaptchaProvider): CaptchaProvider;
+}
+
+export interface CaptchaSettings {
+  siteKey: string;
+  provider: CaptchaProviderType;
 }
 
 export const CAPTCHA_LOADER_OPTIONS = new InjectionToken<CaptchaLoaderOptions>("CAPTCHA_LOADER_OPTIONS");
-export const CAPTCHA_PROVIDER = new InjectionToken<ICaptchaProvider>("CAPTCHA_PROVIDER");
-export const SELECTED_CAPTCHA_PROVIDER = new InjectionToken<CaptchaProvider>("SELECTED_CAPTCHA_PROVIDER");
+export const CAPTCHA_SETTINGS = new InjectionToken<CaptchaSettings>("CAPTCHA_SETTINGS");

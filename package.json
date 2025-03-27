@@ -24,7 +24,6 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "dependencies": {
-    "@types/grecaptcha": "^3.0.3",
     "tslib": "^2.2.0"
   },
   "devDependencies": {

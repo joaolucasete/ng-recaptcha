@@ -4,23 +4,23 @@ import { CaptchaComponent } from "./captcha.component";
 import { CaptchaLoaderService } from "./catpcha-loader.service";
 import {
   CAPTCHA_LOADER_OPTIONS,
-  CAPTCHA_PROVIDER,
+  CAPTCHA_SETTINGS,
   CaptchaLoaderOptions,
   CaptchaProvider,
-  SELECTED_CAPTCHA_PROVIDER,
+  CaptchaProviderType,
+  CaptchaSettings,
 } from "./tokens";
-import { ICaptchaProvider } from "./interfaces";
 import { RecaptchaV2Provider } from "./providers/recaptcha-v2.provider";
 import { HcaptchaProvider } from "./providers/hcaptcha.provider";
 import { TurnstileProvider } from "./providers/turnstile.provider";
 
-export function captchaProviderFactory(selectedProvider: CaptchaProvider, injector: Injector): ICaptchaProvider {
-  switch (selectedProvider) {
-    case CaptchaProvider.Hcaptcha:
+export function captchaProviderFactory(settings: CaptchaSettings, injector: Injector): CaptchaProvider {
+  switch (settings.provider) {
+    case CaptchaProviderType.Hcaptcha:
       return injector.get(HcaptchaProvider);
-    case CaptchaProvider.Turnstile:
+    case CaptchaProviderType.Turnstile:
       return injector.get(TurnstileProvider);
-    case CaptchaProvider.Recaptcha:
+    case CaptchaProviderType.Recaptcha:
     default:
       return injector.get(RecaptchaV2Provider);
   }
@@ -36,27 +36,24 @@ export function captchaProviderFactory(selectedProvider: CaptchaProvider, inject
     HcaptchaProvider,
     TurnstileProvider,
     {
-      provide: ICaptchaProvider,
+      provide: CaptchaProvider,
       useFactory: captchaProviderFactory,
-      deps: [SELECTED_CAPTCHA_PROVIDER, Injector],
+      deps: [CAPTCHA_SETTINGS, Injector],
     },
   ],
 })
 export class MultiCaptchaModule {
-  static forRoot(
-    options?: CaptchaLoaderOptions,
-    defaultProvider: CaptchaProvider = CaptchaProvider.Recaptcha,
-  ): ModuleWithProviders<MultiCaptchaModule> {
+  static forRoot(options?: CaptchaLoaderOptions, settings?: CaptchaSettings): ModuleWithProviders<MultiCaptchaModule> {
     return {
       ngModule: MultiCaptchaModule,
       providers: [
         {
-          provide: CAPTCHA_LOADER_OPTIONS,
-          useValue: options || {},
+          provide: CAPTCHA_SETTINGS,
+          useValue: settings || { provider: CaptchaProviderType.Recaptcha },
         },
         {
-          provide: SELECTED_CAPTCHA_PROVIDER,
-          useValue: defaultProvider,
+          provide: CAPTCHA_LOADER_OPTIONS,
+          useValue: options || {},
         },
       ],
     };
